@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>TrackLog — Submit an Entry</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#181C15;
+    --surface:#242920;
+    --surface-2:#2E3427;
+    --surface-3:#363D2C;
+    --border:#3D4433;
+    --border-light:#4A5239;
+    --text:#E8E4D9;
+    --text-dim:#A8A895;
+    --text-faint:#6E7461;
+    --accent:#C9A227;
+    --accent-dim:#8C7220;
+    --sage:#7FA06F;
+    --rust:#B5502D;
+    --rust-dim:#8A3D22;
+    --radius:2px;
+    font-size:16px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      linear-gradient(var(--bg),var(--bg));
+    background-color:var(--bg);
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(232,228,217,0.035) 1px, transparent 0);
+    background-size:22px 22px;
+    color:var(--text);
+    font-family:'Source Sans 3', sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{ background:var(--accent); color:#181C15; }
+  ::-webkit-scrollbar{ width:10px; height:10px; }
+  ::-webkit-scrollbar-track{ background:var(--surface); }
+  ::-webkit-scrollbar-thumb{ background:var(--border-light); border-radius:4px; }
+
+  .app{ max-width:1100px; margin:0 auto; padding:0 16px 60px; }
+
+  /* ---- Header ---- */
+  header.top{
+    padding:28px 4px 18px;
+    border-bottom:1px solid var(--border);
+    margin-bottom:0;
+    display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap;
+  }
+  .brand{ display:flex; align-items:center; gap:14px; }
+  .brand-mark{
+    width:44px; height:44px; border:2px solid var(--accent); border-radius:50%;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    position:relative;
+  }
+  .brand-mark svg{ width:24px; height:24px; }
+  h1{
+    font-family:'Oswald', sans-serif; font-weight:600; letter-spacing:0.06em;
+    text-transform:uppercase; font-size:1.7rem; margin:0; color:var(--text);
+  }
+  .tagline{
+    font-family:'IBM Plex Mono', monospace; font-size:0.68rem; letter-spacing:0.14em;
+    text-transform:uppercase; color:var(--text-faint); margin-top:3px;
+  }
+  .reg-count{
+    font-family:'IBM Plex Mono', monospace; font-size:0.72rem; color:var(--text-dim);
+    text-align:right; line-height:1.5;
+  }
+  .reg-count b{ color:var(--accent); font-size:1rem; display:block; font-weight:600; }
+
+  /* ---- Tabs ---- */
+  nav.tabs{ display:flex; gap:2px; margin:0 0 28px; }
+  nav.tabs button{
+    font-family:'IBM Plex Mono', monospace; font-size:0.75rem; letter-spacing:0.08em;
+    text-transform:uppercase; padding:11px 20px; background:var(--surface);
+    border:1px solid var(--border); border-top:none; color:var(--text-dim);
+    cursor:pointer; transition:all .15s ease; border-radius:0 0 3px 3px;
+  }
+  nav.tabs button:hover{ color:var(--text); background:var(--surface-2); }
+  nav.tabs button.active{ color:var(--bg); background:var(--accent); border-color:var(--accent); font-weight:600; }
+
+  .view{ display:none; animation:fade .2s ease; }
+  .view.active{ display:block; }
+  @keyframes fade{ from{opacity:0; transform:translateY(3px);} to{opacity:1; transform:translateY(0);} }
+
+  /* ---- Common controls ---- */
+  .panel{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:22px; }
+  label{ display:block; font-family:'IBM Plex Mono', monospace; font-size:0.68rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-dim); margin-bottom:6px; }
+  input[type=text], input[type=date], input[type=number], input[type=password], textarea, select{
+    width:100%; background:var(--surface-2); border:1px solid var(--border-light); color:var(--text);
+    padding:10px 12px; font-family:'Source Sans 3', sans-serif; font-size:0.92rem; border-radius:var(--radius);
+    outline:none; transition:border-color .15s ease;
+  }
+  input:focus, textarea:focus, select:focus{ border-color:var(--accent); }
+  textarea{ resize:vertical; min-height:70px; font-family:'Source Sans 3', sans-serif; }
+  .field{ margin-bottom:16px; }
+  .row2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  @media (max-width:560px){ .row2{ grid-template-columns:1fr; } }
+
+  button.btn{
+    font-family:'IBM Plex Mono', monospace; font-size:0.75rem; letter-spacing:0.08em; text-transform:uppercase;
+    padding:11px 20px; border-radius:var(--radius); border:1px solid var(--accent); background:var(--accent);
+    color:#181C15; font-weight:600; cursor:pointer; transition:transform .1s ease, opacity .15s ease;
+  }
+  button.btn:hover{ opacity:0.88; }
+  button.btn:active{ transform:scale(0.98); }
+  button.btn.ghost{ background:transparent; color:var(--text); border-color:var(--border-light); }
+  button.btn.ghost:hover{ border-color:var(--accent); color:var(--accent); }
+  button.btn.danger{ background:transparent; border-color:var(--rust-dim); color:var(--rust); }
+  button.btn.danger:hover{ background:var(--rust-dim); color:var(--text); }
+  button.btn:disabled{ opacity:0.4; cursor:not-allowed; }
+
+  .type-toggle{ display:flex; gap:10px; }
+  .type-opt{
+    flex:1; border:1px solid var(--border-light); background:var(--surface-2); padding:14px; border-radius:var(--radius);
+    text-align:center; cursor:pointer; transition:all .15s ease;
+  }
+  .type-opt svg{ width:26px; height:26px; display:block; margin:0 auto 6px; opacity:0.7; }
+  .type-opt span{ font-family:'IBM Plex Mono', monospace; font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-dim); }
+  .type-opt.sel{ border-color:var(--accent); background:rgba(201,162,39,0.1); }
+  .type-opt.sel svg{ opacity:1; }
+  .type-opt.sel span{ color:var(--accent); }
+
+  .dropzone{
+    border:1.5px dashed var(--border-light); border-radius:var(--radius); padding:26px; text-align:center;
+    cursor:pointer; transition:border-color .15s ease, background .15s ease; background:var(--surface-2);
+  }
+  .dropzone:hover, .dropzone.drag{ border-color:var(--accent); background:rgba(201,162,39,0.06); }
+  .dropzone p{ margin:8px 0 0; color:var(--text-dim); font-size:0.85rem; }
+  .dropzone .hint{ font-family:'IBM Plex Mono', monospace; font-size:0.66rem; color:var(--text-faint); margin-top:4px; }
+  .preview-wrap{ position:relative; display:inline-block; }
+  .preview-wrap img{ max-width:100%; max-height:260px; border-radius:var(--radius); display:block; }
+  .preview-clear{
+    position:absolute; top:8px; right:8px; background:var(--rust); color:#fff; border:none; border-radius:50%;
+    width:26px; height:26px; cursor:pointer; font-size:0.9rem; line-height:1;
+  }
+
+  /* ---- Database grid ---- */
+  .toolbar{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px; align-items:center; }
+  .toolbar input, .toolbar select{ width:auto; }
+  .toolbar .search{ flex:1; min-width:180px; }
+  .chipset{ display:flex; gap:6px; }
+  .chip{
+    font-family:'IBM Plex Mono', monospace; font-size:0.68rem; text-transform:uppercase; letter-spacing:0.06em;
+    padding:8px 13px; border:1px solid var(--border-light); border-radius:20px; cursor:pointer; color:var(--text-dim);
+    background:var(--surface-2); white-space:nowrap;
+  }
+  .chip.active{ background:var(--accent); color:var(--bg); border-color:var(--accent); font-weight:600; }
+
+  .grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(210px,1fr)); gap:14px; }
+  .card{
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); cursor:pointer;
+    transition:border-color .15s ease, transform .1s ease; position:relative; overflow:hidden;
+  }
+  .card:hover{ border-color:var(--accent); }
+  .card .stub{
+    position:absolute; top:10px; right:-26px; background:var(--accent); color:var(--bg); font-family:'IBM Plex Mono', monospace;
+    font-size:0.62rem; font-weight:600; letter-spacing:0.1em; padding:3px 30px; transform:rotate(40deg);
+    text-transform:uppercase; box-shadow:0 1px 3px rgba(0,0,0,0.3);
+  }
+  .card .stub.tyre{ background:var(--sage); }
+  .card-body{ padding:14px; border-top:3px dotted var(--border); }
+  .card-icon{ width:34px; height:34px; opacity:0.55; margin-bottom:8px; }
+  .card .loc{ font-weight:600; font-size:0.9rem; margin:0 0 4px; }
+  .card .meta{ font-family:'IBM Plex Mono', monospace; font-size:0.66rem; color:var(--text-faint); text-transform:uppercase; letter-spacing:0.04em; }
+  .card .meta span{ display:block; margin-top:2px; }
+
+  .empty{
+    text-align:center; padding:60px 20px; color:var(--text-faint); font-family:'IBM Plex Mono', monospace;
+    font-size:0.8rem; letter-spacing:0.04em;
+  }
+  .empty svg{ width:44px; height:44px; opacity:0.3; margin-bottom:12px; }
+
+  /* ---- Modal ---- */
+  .overlay{ position:fixed; inset:0; background:rgba(10,12,8,0.82); display:none; align-items:center; justify-content:center; z-index:50; padding:20px; }
+  .overlay.show{ display:flex; }
+  .modal{ background:var(--surface); border:1px solid var(--border-light); border-radius:var(--radius); max-width:640px; width:100%; max-height:88vh; overflow-y:auto; }
+  .modal-img{ width:100%; max-height:360px; object-fit:contain; background:#0e100c; display:block; }
+  .modal-body{ padding:22px; }
+  .modal-body h2{ font-family:'Oswald', sans-serif; text-transform:uppercase; letter-spacing:0.04em; margin:0 0 4px; font-size:1.25rem; }
+  .modal-tag{ display:inline-block; font-family:'IBM Plex Mono', monospace; font-size:0.65rem; text-transform:uppercase; letter-spacing:0.08em; padding:3px 9px; border-radius:20px; margin-bottom:14px; background:var(--accent); color:var(--bg); font-weight:600; }
+  .modal-tag.tyre{ background:var(--sage); }
+  .kv{ display:grid; grid-template-columns:100px 1fr; gap:8px 12px; font-size:0.88rem; margin-bottom:14px; }
+  .kv dt{ font-family:'IBM Plex Mono', monospace; font-size:0.66rem; text-transform:uppercase; color:var(--text-faint); letter-spacing:0.05em; align-self:start; padding-top:2px; }
+  .kv dd{ margin:0; color:var(--text); }
+  .modal-notes{ background:var(--surface-2); border-left:2px solid var(--border-light); padding:10px 14px; font-size:0.86rem; color:var(--text-dim); margin-bottom:16px; white-space:pre-wrap; }
+  .modal-actions{ display:flex; gap:10px; justify-content:flex-end; }
+
+  /* ---- Compare ---- */
+  .compare-grid{ display:grid; grid-template-columns:280px 1fr; gap:22px; }
+  @media (max-width:760px){ .compare-grid{ grid-template-columns:1fr; } }
+  .cmp-results{ display:flex; flex-direction:column; gap:10px; }
+  .cmp-row{
+    display:flex; gap:12px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+    padding:12px; align-items:center; cursor:pointer; transition:border-color .15s ease;
+  }
+  .cmp-row:hover{ border-color:var(--accent); }
+  .cmp-row .thumb{ width:58px; height:58px; object-fit:cover; border-radius:var(--radius); background:#0e100c; flex-shrink:0; }
+  .cmp-row .cmp-info{ flex:1; min-width:0; }
+  .cmp-row .cmp-info .loc{ font-weight:600; font-size:0.88rem; margin:0 0 3px; }
+  .cmp-row .cmp-info .meta{ font-family:'IBM Plex Mono', monospace; font-size:0.65rem; color:var(--text-faint); text-transform:uppercase; }
+  .score-badge{
+    font-family:'IBM Plex Mono', monospace; font-size:0.78rem; font-weight:600; padding:6px 10px; border-radius:20px;
+    text-align:center; min-width:56px; flex-shrink:0;
+  }
+  .score-high{ background:rgba(127,160,111,0.18); color:var(--sage); border:1px solid var(--sage); }
+  .score-mid{ background:rgba(201,162,39,0.15); color:var(--accent); border:1px solid var(--accent-dim); }
+  .score-low{ background:rgba(168,168,149,0.1); color:var(--text-faint); border:1px solid var(--border-light); }
+
+  .disclaimer{
+    font-family:'IBM Plex Mono', monospace; font-size:0.68rem; line-height:1.6; color:var(--text-faint);
+    border:1px solid var(--border); padding:12px 14px; border-radius:var(--radius); margin-top:18px; background:var(--surface-2);
+  }
+  .disclaimer b{ color:var(--text-dim); }
+
+  .side-by-side{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px; }
+  @media (max-width:560px){ .side-by-side{ grid-template-columns:1fr; } }
+  .side-by-side figure{ margin:0; background:#0e100c; border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+  .side-by-side img{ width:100%; height:200px; object-fit:contain; display:block; }
+  .side-by-side figcaption{ font-family:'IBM Plex Mono', monospace; font-size:0.64rem; text-transform:uppercase; letter-spacing:0.06em; padding:6px 10px; color:var(--text-faint); border-top:1px solid var(--border); }
+
+  .overlay-slider-wrap{ margin-bottom:16px; }
+  .overlay-stage{ position:relative; background:#0e100c; border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; height:260px; }
+  .overlay-stage img{ position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }
+  .overlay-stage img.top{ clip-path:inset(0 0 0 var(--clip, 50%)); }
+  input[type=range]{ width:100%; accent-color:var(--accent); margin-top:8px; }
+
+  .loading-line{ font-family:'IBM Plex Mono', monospace; font-size:0.75rem; color:var(--text-dim); padding:20px; text-align:center; }
+
+  .toast{
+    position:fixed; bottom:22px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--surface-3);
+    border:1px solid var(--accent); color:var(--text); padding:11px 20px; border-radius:var(--radius);
+    font-family:'IBM Plex Mono', monospace; font-size:0.78rem; opacity:0; pointer-events:none; transition:all .25s ease; z-index:100;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#C9A227" stroke-width="1.6"><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1" stroke-linecap="round"/><circle cx="12" cy="12" r="3.2"/></svg>
+      </div>
+      <div>
+        <h1>TrackLog</h1>
+        <div class="tagline">Boot Print &amp; Tyre Track Register</div>
+      </div>
+    </div>
+    <a class="btn ghost" href="database.html" style="font-size:0.68rem; padding:8px 14px; text-decoration:none;">View database →</a>
+  </header>
+
+  <div id="setupBanner"></div>
+
+  <!-- ADD ENTRY VIEW -->
+  <section class="view active" id="view-add">
+    <div class="panel" style="max-width:640px;">
+      <div class="field">
+        <label>Print type</label>
+        <div class="type-toggle">
+          <div class="type-opt sel" data-type="boot">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#E8E4D9" stroke-width="1.5"><path d="M5 21h13a2 2 0 0 0 2-2c0-2-2-3-4-3-1.2 0-2-1-2-2V5a2 2 0 0 0-2-2H9a1 1 0 0 0-1 1v10c0 2-3 3-3 5v1a2 2 0 0 0 2 2Z"/></svg>
+            <span>Boot print</span>
+          </div>
+          <div class="type-opt" data-type="tyre">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#E8E4D9" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.4"/><path d="M12 3v3M12 18v3M21 12h-3M6 12H3M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1M18.4 18.4l-2.1-2.1M7.7 7.7 5.6 5.6" stroke-linecap="round"/></svg>
+            <span>Tyre track</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Photograph</label>
+        <div class="dropzone" id="dropzone">
+          <div id="dzPlaceholder">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#A8A895" stroke-width="1.4" style="margin:0 auto;"><path d="M4 16.5V18a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1.5M12 3v13M7 8l5-5 5 5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <p>Tap to upload, or drag a photo here</p>
+            <div class="hint">JPG / PNG · uploaded to the shared register</div>
+          </div>
+          <div id="dzPreview" style="display:none;">
+            <div class="preview-wrap">
+              <img id="previewImg" src="" alt="preview">
+              <button type="button" class="preview-clear" id="clearPreview">✕</button>
+            </div>
+          </div>
+        </div>
+        <input type="file" id="fileInput" accept="image/*" style="display:none;">
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label>Location description</label>
+          <input type="text" id="fLocation" placeholder="e.g. North fence line, Riverbend farm">
+        </div>
+        <div class="field">
+          <label>Date found</label>
+          <input type="date" id="fDate">
+        </div>
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label>GPS pin (lat, long) — optional</label>
+          <div style="display:flex; gap:8px;">
+            <input type="text" id="fCoords" placeholder="e.g. -26.1876, 28.3242">
+            <button type="button" class="btn ghost" id="useLocBtn" style="white-space:nowrap;">Use my location</button>
+          </div>
+          <div id="coordsPreview" style="font-family:'IBM Plex Mono',monospace; font-size:0.68rem; color:var(--text-faint); margin-top:6px;"></div>
+        </div>
+        <div class="field">
+          <label>Reference / case no. — optional</label>
+          <input type="text" id="fRef" placeholder="e.g. CASE-0142">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Notes</label>
+        <textarea id="fNotes" placeholder="Tread pattern, size, depth, weather, any distinguishing wear or damage…"></textarea>
+      </div>
+
+      <div style="display:flex; gap:10px; justify-content:flex-end;">
+        <button class="btn ghost" id="resetForm" type="button">Clear</button>
+        <button class="btn" id="saveEntry" type="button">Save to register</button>
+      </div>
+    </div>
+  </section>
+
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// CONFIG — paste your own keys here. See SETUP.md.
+// ============================================================
+const CONFIG = {
+  SUPABASE_URL: "https://pmiwedkvnazeshlxnnnq.supabase.co",
+  SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBtaXdlZGt2bmF6ZXNobHhubm5xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM4NDgwNDIsImV4cCI6MjA5OTQyNDA0Mn0.M_X2jR2JSJjM7FMw52oGPDQlUOeIvXiUsvIzltCoiuQ",
+  EMAILJS_PUBLIC_KEY: "YOUR-EMAILJS-PUBLIC-KEY",
+  EMAILJS_SERVICE_ID: "YOUR-EMAILJS-SERVICE-ID",
+  EMAILJS_TEMPLATE_ID: "YOUR-EMAILJS-TEMPLATE-ID",
+  NOTIFY_EMAIL: "you@example.com",
+};
+const IS_CONFIGURED = !CONFIG.SUPABASE_URL.includes("YOUR-") && !CONFIG.SUPABASE_ANON_KEY.includes("YOUR-");
+const IS_EMAIL_CONFIGURED = !CONFIG.EMAILJS_PUBLIC_KEY.includes("YOUR-") && !CONFIG.EMAILJS_SERVICE_ID.includes("YOUR-") && !CONFIG.EMAILJS_TEMPLATE_ID.includes("YOUR-");
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+
+const sb = IS_CONFIGURED ? supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY) : null;
+if (IS_EMAIL_CONFIGURED && typeof emailjs !== 'undefined') emailjs.init({ publicKey: CONFIG.EMAILJS_PUBLIC_KEY });
+
+if (!IS_CONFIGURED) {
+  const banner = document.createElement('div');
+  banner.className = 'disclaimer';
+  banner.style.cssText = 'margin:16px auto 0;max-width:1100px;border-color:var(--rust-dim);color:var(--text);';
+  banner.innerHTML = "<b>Setup needed:</b> this site isn't connected to a shared database yet.";
+  document.querySelector('header.top').after(banner);
+}
+
+function mapsLink(coords) {
+  const m = (coords || '').trim().match(/^(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)$/);
+  if (!m) return null;
+  return `https://www.google.com/maps?q=${m[1]},${m[2]}`;
+}
+
+async function notifyNewEntry(entry) {
+  if (!IS_EMAIL_CONFIGURED || typeof emailjs === 'undefined') return;
+  const link = mapsLink(entry.coords);
+  try {
+    await emailjs.send(CONFIG.EMAILJS_SERVICE_ID, CONFIG.EMAILJS_TEMPLATE_ID, {
+      to_email: CONFIG.NOTIFY_EMAIL,
+      print_type: entry.type === 'tyre' ? 'Tyre track' : 'Boot print',
+      location: entry.location || 'Unlabeled location',
+      notes: entry.notes || '(no notes)',
+      location_link: link || '(no GPS pin provided)',
+      submitted_at: new Date(entry.createdAt).toLocaleString(),
+    }, CONFIG.EMAILJS_PUBLIC_KEY);
+  } catch (err) { console.warn('Email notification failed:', err); }
+}
+
+let toastTimer;
+function toast(msg) {
+  const t = $('#toast'); if (!t) return;
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+function readAndCompress(file, maxDim = 760, quality = 0.68) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('Could not read file'));
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxDim || height > maxDim) {
+          if (width > height) { height = Math.round(height * maxDim / width); width = maxDim; }
+          else { width = Math.round(width * maxDim / height); height = maxDim; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = () => reject(new Error('Could not decode image'));
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function rowToEntry(row) {
+  return {
+    id: row.id, type: row.type, photo: row.photo,
+    location: row.location, date: row.date, coords: row.coords,
+    reference: row.reference, notes: row.notes, createdAt: row.created_at,
+  };
+}
+
+async function getIndex() {
+  if (!sb) return [];
+  const { data, error } = await sb.from('entries').select('*').order('created_at', { ascending: false });
+  if (error) { toast('Could not load register: ' + error.message); return []; }
+  return (data || []).map(rowToEntry);
+}
+
+async function saveEntry(entry) {
+  if (!sb) throw new Error('not-configured');
+  let photoUrl = entry.photo;
+  if (photoUrl && photoUrl.startsWith('data:')) {
+    const blob = await (await fetch(photoUrl)).blob();
+    const filename = `${entry.id}.jpg`;
+    const { error: upErr } = await sb.storage.from('print-photos').upload(filename, blob, { contentType: 'image/jpeg' });
+    if (upErr) throw upErr;
+    const { data: pub } = sb.storage.from('print-photos').getPublicUrl(filename);
+    photoUrl = pub.publicUrl;
+  }
+  const row = {
+    id: entry.id, type: entry.type, photo: photoUrl,
+    location: entry.location, date: entry.date, coords: entry.coords,
+    reference: entry.reference, notes: entry.notes, created_at: entry.createdAt,
+  };
+  const { error } = await sb.from('entries').insert(row);
+  if (error) throw error;
+  entry.photo = photoUrl;
+  notifyNewEntry(entry);
+}
+
+async function deleteEntryStorage(id) {
+  if (!sb) return;
+  await sb.storage.from('print-photos').remove([`${id}.jpg`]);
+  await sb.from('entries').delete().eq('id', id);
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function typeIcon(type, color) {
+  if (type === 'boot') {
+    return `<svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="1.4"><path d="M5 21h13a2 2 0 0 0 2-2c0-2-2-3-4-3-1.2 0-2-1-2-2V5a2 2 0 0 0-2-2H9a1 1 0 0 0-1 1v10c0 2-3 3-3 5v1a2 2 0 0 0 2 2Z"/></svg>`;
+  }
+  return `<svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="1.4"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.2"/></svg>`;
+}
+
+function updateCoordsPreview() {
+  const link = mapsLink($('#fCoords').value);
+  $('#coordsPreview').innerHTML = link ? `Pin set → <a href="${link}" target="_blank" style="color:var(--accent);">Open in Google Maps</a>` : '';
+}
+$('#fCoords').addEventListener('input', updateCoordsPreview);
+$('#useLocBtn').addEventListener('click', () => {
+  if (!navigator.geolocation) { toast('Geolocation not available in this browser'); return; }
+  $('#coordsPreview').textContent = 'Getting your location…';
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      $('#fCoords').value = pos.coords.latitude.toFixed(6) + ', ' + pos.coords.longitude.toFixed(6);
+      updateCoordsPreview();
+    },
+    err => { $('#coordsPreview').textContent = 'Could not get location: ' + err.message; },
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+});
+
+let selectedType = 'boot';
+let pendingPhoto = null;
+
+$$('.type-opt').forEach(opt => {
+  opt.addEventListener('click', () => {
+    $$('.type-opt').forEach(o => o.classList.remove('sel'));
+    opt.classList.add('sel');
+    selectedType = opt.dataset.type;
+  });
+});
+
+const dropzone = $('#dropzone');
+const fileInput = $('#fileInput');
+dropzone.addEventListener('click', () => fileInput.click());
+dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag'); });
+dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag'));
+dropzone.addEventListener('drop', e => {
+  e.preventDefault(); dropzone.classList.remove('drag');
+  if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', () => { if (fileInput.files[0]) handleFile(fileInput.files[0]); });
+
+async function handleFile(file) {
+  if (!file.type.startsWith('image/')) { toast('Please choose an image file'); return; }
+  try {
+    const dataUrl = await readAndCompress(file);
+    pendingPhoto = dataUrl;
+    $('#previewImg').src = dataUrl;
+    $('#dzPlaceholder').style.display = 'none';
+    $('#dzPreview').style.display = 'block';
+  } catch (err) { toast('Could not process that image'); }
+}
+$('#clearPreview').addEventListener('click', e => {
+  e.stopPropagation(); pendingPhoto = null; fileInput.value = '';
+  $('#dzPlaceholder').style.display = ''; $('#dzPreview').style.display = 'none';
+});
+
+function resetAddForm() {
+  pendingPhoto = null; fileInput.value = '';
+  $('#dzPlaceholder').style.display = ''; $('#dzPreview').style.display = 'none';
+  $('#fLocation').value = ''; $('#fDate').value = ''; $('#fCoords').value = '';
+  $('#fRef').value = ''; $('#fNotes').value = '';
+  $('#coordsPreview').textContent = '';
+  $$('.type-opt').forEach(o => o.classList.remove('sel'));
+  $('.type-opt[data-type="boot"]').classList.add('sel');
+  selectedType = 'boot';
+}
+$('#resetForm').addEventListener('click', resetAddForm);
+
+$('#saveEntry').addEventListener('click', async () => {
+  if (!pendingPhoto) { toast('Add a photo before saving'); return; }
+  const btn = $('#saveEntry'); btn.disabled = true; btn.textContent = 'Saving…';
+  const entry = {
+    id: 't' + Date.now() + Math.random().toString(36).slice(2, 7),
+    type: selectedType,
+    photo: pendingPhoto,
+    location: $('#fLocation').value.trim(),
+    date: $('#fDate').value,
+    coords: $('#fCoords').value.trim(),
+    reference: $('#fRef').value.trim(),
+    notes: $('#fNotes').value.trim(),
+    createdAt: Date.now(),
+  };
+  try {
+    await saveEntry(entry);
+    resetAddForm();
+    toast('Entry saved — it will appear on the database site immediately');
+  } catch (err) {
+    if (!IS_CONFIGURED) {
+      toast("This site isn't connected to a database yet");
+    } else {
+      toast('Save failed — try again');
+    }
+    console.error(err);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save to register';
+  }
+});
+</script>
+</body>
+</html>
